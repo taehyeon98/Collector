@@ -12,8 +12,9 @@
 ACLTMonsterBase::ACLTMonsterBase()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+	GetCharacterMovement()->MaxWalkSpeed = 80.0f;
 }
 
 // Called when the game starts or when spawned
@@ -73,6 +74,11 @@ float ACLTMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 	{
 		Dead();
 		SetState(EMonsterState::Death);
+		ACLTMonsterController* AIC = Cast<ACLTMonsterController>(GetController());
+		if (AIC)
+		{
+			AIC->SetState(EMonsterState::Death);
+		}
 
 		return DamageAmount;
 	}

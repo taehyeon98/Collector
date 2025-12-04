@@ -11,8 +11,8 @@ enum class EMonsterState : uint8
 {
 	Normal = 0 UMETA(DisplayName = "Normal"),
 	Chase = 1 UMETA(DisplayName = "Chase"),
-	Battle = 0 UMETA(DisplayName = "Battle"),
-	Death = 0 UMETA(DisplayName = "Death")
+	Battle = 2 UMETA(DisplayName = "Battle"),
+	Death = 3 UMETA(DisplayName = "Death")
 };
 
 UCLASS()

@@ -24,16 +24,16 @@ public:
 
 	virtual void OnUnPossess() override;
 
-	void SetState(EMonsterState NewState);
+	virtual void SetState(EMonsterState NewState);
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category = Component)
 	TObjectPtr<UAIPerceptionComponent> Perception;
 		
 	UFUNCTION()
-	void ProcessPerceptionForget(AActor* Actor);
+	virtual void ProcessPerceptionForget(AActor* Actor);
 
 	UFUNCTION()
-	void ProcessActorPerception(AActor* Actor, FAIStimulus Stimulus);
+	virtual void ProcessActorPerception(AActor* Actor, FAIStimulus Stimulus);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	TObjectPtr<UBehaviorTree> RunBTAsset;

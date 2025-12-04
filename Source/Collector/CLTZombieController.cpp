@@ -1,30 +1,25 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CLTMonsterController.h"
+#include "CLTZombieController.h"
 #include "Perception/AIPerceptionComponent.h"
-#include "Perception/AISenseConfig_Sight.h"
+#include "Perception/AISenseConfig_Hearing.h"
 #include "CLTCharacter.h"
 #include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "CLTMonsterBase.h"
 
-ACLTMonsterController::ACLTMonsterController()
+ACLTZombieController::ACLTZombieController()
 {
-	Perception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("Perception"));
-
-	UAISenseConfig_Sight* Sight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight"));
-	Sight->SightRadius = 700.0f;
-	Sight->LoseSightRadius = 800.0f;
-	Sight->PeripheralVisionAngleDegrees = 60.0f;
-	Sight->DetectionByAffiliation.bDetectEnemies = true;
-	Sight->DetectionByAffiliation.bDetectFriendlies = false;
-	Sight->DetectionByAffiliation.bDetectNeutrals = false;
-	Perception->ConfigureSense(*Sight);
-	Perception->SetDominantSense(*Sight->GetSenseImplementation());
+	UAISenseConfig_Hearing* Hearing = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing"));
+	Hearing->HearingRange = 2000.0f;
+	Hearing->DetectionByAffiliation.bDetectEnemies = true;
+	Hearing->DetectionByAffiliation.bDetectFriendlies = false;
+	Hearing->DetectionByAffiliation.bDetectNeutrals = false;
+	Perception->ConfigureSense(*Hearing);
 }
 
-void ACLTMonsterController::OnPossess(APawn* InPawn)
+void ACLTZombieController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
@@ -34,23 +29,27 @@ void ACLTMonsterController::OnPossess(APawn* InPawn)
 
 	}
 
-	Perception->OnTargetPerceptionForgotten.AddDynamic(this, &ACLTMonsterController::ProcessPerceptionForget);
-	Perception->OnTargetPerceptionUpdated.AddDynamic(this, &ACLTMonsterController::ProcessActorPerception);
+	Perception->OnTargetPerceptionForgotten.AddDynamic(this, &ACLTZombieController::ProcessPerceptionForget);
+	Perception->OnTargetPerceptionUpdated.AddDynamic(this, &ACLTZombieController::ProcessActorPerception);
 	SetGenericTeamId(3);
 }
 
-void ACLTMonsterController::OnUnPossess()
+void ACLTZombieController::OnUnPossess()
 {
 	Super::OnUnPossess();
 }
 
-void ACLTMonsterController::SetState(EMonsterState NewState)
+void ACLTZombieController::SetState(EMonsterState NewState)
 {
+	Super::SetState(NewState);
+
 	Blackboard->SetValueAsEnum(TEXT("State"), (uint8)(NewState));
 }
 
-void ACLTMonsterController::ProcessPerceptionForget(AActor* Actor)
+void ACLTZombieController::ProcessPerceptionForget(AActor* Actor)
 {
+	Super::ProcessPerceptionForget(Actor);
+
 	ACLTCharacter* Player = Cast<ACLTCharacter>(Actor);
 	ACLTMonsterBase* Monster = Cast<ACLTMonsterBase>(GetPawn());
 	if (Player && Monster)
@@ -67,9 +66,10 @@ void ACLTMonsterController::ProcessPerceptionForget(AActor* Actor)
 	}
 }
 
-void ACLTMonsterController::ProcessActorPerception(AActor* Actor, FAIStimulus Stimulus)
+void ACLTZombieController::ProcessActorPerception(AActor* Actor, FAIStimulus Stimulus)
 {
-	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Sight>())
+	Super::ProcessActorPerception(Actor, Stimulus);
+	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Hearing>())
 	{
 		if (Stimulus.WasSuccessfullySensed())
 		{
@@ -85,7 +85,7 @@ void ACLTMonsterController::ProcessActorPerception(AActor* Actor, FAIStimulus St
 				Blackboard->SetValueAsObject(TEXT("Target"), Player);
 				SetState(EMonsterState::Chase);
 				Monster->SetState(EMonsterState::Chase);
-				Monster->ChangeSpeed(500.0f);
+				Monster->ChangeSpeed(200.0f);
 			}
 		}
 		else
@@ -102,7 +102,7 @@ void ACLTMonsterController::ProcessActorPerception(AActor* Actor, FAIStimulus St
 				Blackboard->SetValueAsObject(TEXT("Target"), nullptr);
 				SetState(EMonsterState::Normal);
 				Monster->SetState(EMonsterState::Normal);
-				Monster->ChangeSpeed(100.0f);
+				Monster->ChangeSpeed(80.0f);
 			}
 		}
 	}
