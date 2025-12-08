@@ -43,11 +43,26 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Aim(float Pitch, float Yaw);
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnFootSound();
+
+	UFUNCTION(BlueprintCallable)
+	void StartSprint();
+
+	UFUNCTION(BlueprintCallable)
+	void StopSprint();
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Data)
 	uint8 bSprint : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	TObjectPtr<class USoundBase> FootSound;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	FGenericTeamId TeamID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TObjectPtr<UInputAction> IA_Sprint;
 
 	UPROPERTY(Category = Character, EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAIPerceptionStimuliSourceComponent> StimuliSource;

@@ -7,6 +7,9 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "EnhancedInputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ACLTCharacter::ACLTCharacter()
@@ -42,7 +45,6 @@ ACLTCharacter::ACLTCharacter()
 void ACLTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -57,6 +59,12 @@ void ACLTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	UEnhancedInputComponent* UIC = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (UIC)
+	{
+		UIC->BindAction(IA_Sprint, ETriggerEvent::Started, this, &ACLTCharacter::StartSprint);
+		UIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ACLTCharacter::StopSprint);
+	}
 }
 
 void ACLTCharacter::Move(float Forward, float Right)
@@ -85,5 +93,24 @@ void ACLTCharacter::SetGenericTeamId(const FGenericTeamId& InTeamID)
 FGenericTeamId ACLTCharacter::GetGenericTeamId() const
 {
 	return TeamID;
+}
+
+void ACLTCharacter::SpawnFootSound()
+{
+	UGameplayStatics::SpawnSoundAtLocation(
+		GetWorld(),
+		FootSound,
+		GetActorLocation()
+	);
+}
+
+void ACLTCharacter::StartSprint()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+}
+
+void ACLTCharacter::StopSprint()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 }
 

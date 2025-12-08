@@ -17,6 +17,7 @@ ACLTZombieController::ACLTZombieController()
 	Hearing->DetectionByAffiliation.bDetectFriendlies = false;
 	Hearing->DetectionByAffiliation.bDetectNeutrals = false;
 	Perception->ConfigureSense(*Hearing);
+	Perception->SetDominantSense(*Hearing->GetSenseImplementation());
 }
 
 void ACLTZombieController::OnPossess(APawn* InPawn)
