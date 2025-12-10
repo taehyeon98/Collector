@@ -85,7 +85,7 @@ void ACLTMonsterController::ProcessActorPerception(AActor* Actor, FAIStimulus St
 				Blackboard->SetValueAsObject(TEXT("Target"), Player);
 				SetState(EMonsterState::Chase);
 				Monster->SetState(EMonsterState::Chase);
-				Monster->ChangeSpeed(500.0f);
+				Monster->ChangeSpeed(400.0f);
 			}
 		}
 		else

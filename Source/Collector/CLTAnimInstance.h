@@ -23,10 +23,10 @@ public:
 	float GroundSpeed = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
-	uint8 bSprint : 1;
+	uint8 bCrouch : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
-	uint8 bCrouch : 1;
+	uint8 bSprint : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	float Direction;

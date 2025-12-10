@@ -63,7 +63,7 @@ void ACLTZombieController::ProcessPerceptionForget(AActor* Actor)
 		Blackboard->SetValueAsObject(TEXT("Target"), nullptr);
 		SetState(EMonsterState::Normal);
 		Monster->SetState(EMonsterState::Normal);
-		Monster->ChangeSpeed(100.0f);
+		Monster->ChangeSpeed(80.0f);
 	}
 }
 

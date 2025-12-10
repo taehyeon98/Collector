@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISenseConfig_Hearing.h"
 
 // Sets default values
 ACLTCharacter::ACLTCharacter()
@@ -37,6 +39,8 @@ ACLTCharacter::ACLTCharacter()
 	FirstCamera->bEnableFirstPersonScale = true;
 
 	StimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("StimuliSource"));
+
+	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
 
 	SetGenericTeamId(1);
 }
@@ -102,6 +106,14 @@ void ACLTCharacter::SpawnFootSound()
 		FootSound,
 		GetActorLocation()
 	);
+
+	UAISense_Hearing::ReportNoiseEvent(
+		GetWorld(),
+		GetActorLocation(),
+		1.0f,
+		this,
+		-1
+	);
 }
 
 void ACLTCharacter::StartSprint()
@@ -111,6 +123,6 @@ void ACLTCharacter::StartSprint()
 
 void ACLTCharacter::StopSprint()
 {
-	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
 }
 

@@ -14,8 +14,8 @@ void UCLTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (Character)
 	{
 		GroundSpeed = Character->GetCharacterMovement()->Velocity.Size2D();
-		bSprint = Character->bSprint;
 		Direction = UKismetAnimationLibrary::CalculateDirection(Character->GetCharacterMovement()->Velocity, Character->GetActorRotation());
 		bCrouch = Character->bIsCrouched;
+		bSprint = Character->bSprint;
 	}
 }

@@ -52,9 +52,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopSprint();
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Data)
-	uint8 bSprint : 1;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	TObjectPtr<class USoundBase> FootSound;
 
@@ -66,6 +63,18 @@ public:
 
 	UPROPERTY(Category = Character, EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAIPerceptionStimuliSourceComponent> StimuliSource;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	uint8 bSprint : 1 = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	float Stamina = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	float CurrentHP = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	float MaxHP = 100;
 
 	/** Assigns Team Agent to given TeamID */
 	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;
