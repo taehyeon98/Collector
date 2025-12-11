@@ -68,7 +68,10 @@ public:
 	uint8 bSprint : 1 = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
-	float Stamina = 100.0f;
+	float CurrentStamina = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	float MaxStamina = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	float CurrentHP = 100;

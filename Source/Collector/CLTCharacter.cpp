@@ -55,7 +55,6 @@ void ACLTCharacter::BeginPlay()
 void ACLTCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -66,7 +65,7 @@ void ACLTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	UEnhancedInputComponent* UIC = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (UIC)
 	{
-		UIC->BindAction(IA_Sprint, ETriggerEvent::Started, this, &ACLTCharacter::StartSprint);
+		UIC->BindAction(IA_Sprint, ETriggerEvent::Triggered, this, &ACLTCharacter::StartSprint);
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ACLTCharacter::StopSprint);
 	}
 }
@@ -118,11 +117,13 @@ void ACLTCharacter::SpawnFootSound()
 
 void ACLTCharacter::StartSprint()
 {
+	bSprint = true;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 }
 
 void ACLTCharacter::StopSprint()
 {
+	bSprint = false;
 	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
 }
 
