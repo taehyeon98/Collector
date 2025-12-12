@@ -6,7 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "CLTMonsterBase.h"
+#include "../Monster/CLTMonsterBase.h"
 
 UBTTask_CheckDistance::UBTTask_CheckDistance()
 {

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
-#include "CLTMonsterBase.h"
+#include "../Monster/CLTMonsterBase.h"
 #include "BTTask_CheckDistance.generated.h"
 
 UENUM(BlueprintType)

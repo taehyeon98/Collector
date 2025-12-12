@@ -2,7 +2,7 @@
 
 
 #include "CLTAnimInstance.h"
-#include "CLTCharacter.h"
+#include "../CLTCharacter.h"
 #include "Gameframework/CharacterMovementComponent.h"
 #include "KismetAnimationLibrary.h"
 

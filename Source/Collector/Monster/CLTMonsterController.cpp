@@ -1,26 +1,30 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CLTZombieController.h"
+#include "CLTMonsterController.h"
 #include "Perception/AIPerceptionComponent.h"
-#include "Perception/AISenseConfig_Hearing.h"
-#include "CLTCharacter.h"
+#include "Perception/AISenseConfig_Sight.h"
+#include "../CLTCharacter.h"
 #include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "CLTMonsterBase.h"
 
-ACLTZombieController::ACLTZombieController()
+ACLTMonsterController::ACLTMonsterController()
 {
-	UAISenseConfig_Hearing* Hearing = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing"));
-	Hearing->HearingRange = 2000.0f;
-	Hearing->DetectionByAffiliation.bDetectEnemies = true;
-	Hearing->DetectionByAffiliation.bDetectFriendlies = false;
-	Hearing->DetectionByAffiliation.bDetectNeutrals = false;
-	Perception->ConfigureSense(*Hearing);
-	Perception->SetDominantSense(*Hearing->GetSenseImplementation());
+	Perception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("Perception"));
+
+	UAISenseConfig_Sight* Sight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight"));
+	Sight->SightRadius = 700.0f;
+	Sight->LoseSightRadius = 800.0f;
+	Sight->PeripheralVisionAngleDegrees = 60.0f;
+	Sight->DetectionByAffiliation.bDetectEnemies = true;
+	Sight->DetectionByAffiliation.bDetectFriendlies = false;
+	Sight->DetectionByAffiliation.bDetectNeutrals = false;
+	Perception->ConfigureSense(*Sight);
+	Perception->SetDominantSense(*Sight->GetSenseImplementation());
 }
 
-void ACLTZombieController::OnPossess(APawn* InPawn)
+void ACLTMonsterController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
@@ -30,27 +34,23 @@ void ACLTZombieController::OnPossess(APawn* InPawn)
 
 	}
 
-	Perception->OnTargetPerceptionForgotten.AddDynamic(this, &ACLTZombieController::ProcessPerceptionForget);
-	Perception->OnTargetPerceptionUpdated.AddDynamic(this, &ACLTZombieController::ProcessActorPerception);
+	Perception->OnTargetPerceptionForgotten.AddDynamic(this, &ACLTMonsterController::ProcessPerceptionForget);
+	Perception->OnTargetPerceptionUpdated.AddDynamic(this, &ACLTMonsterController::ProcessActorPerception);
 	SetGenericTeamId(3);
 }
 
-void ACLTZombieController::OnUnPossess()
+void ACLTMonsterController::OnUnPossess()
 {
 	Super::OnUnPossess();
 }
 
-void ACLTZombieController::SetState(EMonsterState NewState)
+void ACLTMonsterController::SetState(EMonsterState NewState)
 {
-	Super::SetState(NewState);
-
 	Blackboard->SetValueAsEnum(TEXT("State"), (uint8)(NewState));
 }
 
-void ACLTZombieController::ProcessPerceptionForget(AActor* Actor)
+void ACLTMonsterController::ProcessPerceptionForget(AActor* Actor)
 {
-	Super::ProcessPerceptionForget(Actor);
-
 	ACLTCharacter* Player = Cast<ACLTCharacter>(Actor);
 	ACLTMonsterBase* Monster = Cast<ACLTMonsterBase>(GetPawn());
 	if (Player && Monster)
@@ -63,14 +63,13 @@ void ACLTZombieController::ProcessPerceptionForget(AActor* Actor)
 		Blackboard->SetValueAsObject(TEXT("Target"), nullptr);
 		SetState(EMonsterState::Normal);
 		Monster->SetState(EMonsterState::Normal);
-		Monster->ChangeSpeed(80.0f);
+		Monster->ChangeSpeed(100.0f);
 	}
 }
 
-void ACLTZombieController::ProcessActorPerception(AActor* Actor, FAIStimulus Stimulus)
+void ACLTMonsterController::ProcessActorPerception(AActor* Actor, FAIStimulus Stimulus)
 {
-	Super::ProcessActorPerception(Actor, Stimulus);
-	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Hearing>())
+	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Sight>())
 	{
 		if (Stimulus.WasSuccessfullySensed())
 		{
@@ -86,7 +85,7 @@ void ACLTZombieController::ProcessActorPerception(AActor* Actor, FAIStimulus Sti
 				Blackboard->SetValueAsObject(TEXT("Target"), Player);
 				SetState(EMonsterState::Chase);
 				Monster->SetState(EMonsterState::Chase);
-				Monster->ChangeSpeed(200.0f);
+				Monster->ChangeSpeed(400.0f);
 			}
 		}
 		else
@@ -103,7 +102,7 @@ void ACLTZombieController::ProcessActorPerception(AActor* Actor, FAIStimulus Sti
 				Blackboard->SetValueAsObject(TEXT("Target"), nullptr);
 				SetState(EMonsterState::Normal);
 				Monster->SetState(EMonsterState::Normal);
-				Monster->ChangeSpeed(80.0f);
+				Monster->ChangeSpeed(100.0f);
 			}
 		}
 	}

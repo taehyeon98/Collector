@@ -2,7 +2,7 @@
 
 
 #include "AnimNotify_FootSound.h"
-#include "CLTCharacter.h"
+#include "../CLTCharacter.h"
 #include "Kismet/GamePlayStatics.h"
 
 FString UAnimNotify_FootSound::GetNotifyName_Implementation() const

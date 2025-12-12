@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "CLTCharacter.h"
+#include "../CLTCharacter.h"
 #include "CLTAnimInstance.generated.h"
 
 /**

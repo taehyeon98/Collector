@@ -55,6 +55,27 @@ void ACLTCharacter::BeginPlay()
 void ACLTCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bSprint)
+	{
+		CurrentStamina = CurrentStamina - (UseStamina * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
+		if (CurrentStamina <= 0.0f)
+		{
+			CurrentStamina = 0.0f;
+			StopSprint();
+		}
+	}
+	else if(bCanCharging)
+	{
+		if (CurrentStamina < MaxStamina)
+		{
+			CurrentStamina = CurrentStamina + (UseStamina * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
+			if (CurrentStamina > MaxStamina)
+			{
+				CurrentStamina = MaxStamina;
+			}
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -118,6 +139,7 @@ void ACLTCharacter::SpawnFootSound()
 void ACLTCharacter::StartSprint()
 {
 	bSprint = true;
+	bCanCharging = false;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 }
 
@@ -125,5 +147,18 @@ void ACLTCharacter::StopSprint()
 {
 	bSprint = false;
 	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
+
+	GetWorldTimerManager().SetTimer(
+		StaminaChargingTimer,
+		this,
+		&ACLTCharacter::CanChargingStamina,
+		3.0f,
+		false
+	);
+}
+
+void ACLTCharacter::CanChargingStamina()
+{
+	bCanCharging = true;
 }
 

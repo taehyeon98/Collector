@@ -52,6 +52,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopSprint();
 
+	UFUNCTION(BlueprintCallable)
+	void CanChargingStamina();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	TObjectPtr<class USoundBase> FootSound;
 
@@ -68,16 +71,24 @@ public:
 	uint8 bSprint : 1 = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	uint8 bCanCharging : 1 = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	float CurrentStamina = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	float MaxStamina = 100.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	float UseStamina = 15.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	float CurrentHP = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	float MaxHP = 100;
+
+	FTimerHandle StaminaChargingTimer;
 
 	/** Assigns Team Agent to given TeamID */
 	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;

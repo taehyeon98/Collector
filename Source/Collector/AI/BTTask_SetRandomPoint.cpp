@@ -2,7 +2,7 @@
 
 
 #include "BTTask_SetRandomPoint.h"
-#include "CLTMonsterController.h"
+#include "../Monster/CLTMonsterController.h"
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavigationSystem.h"
