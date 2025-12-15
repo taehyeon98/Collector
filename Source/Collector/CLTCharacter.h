@@ -74,6 +74,9 @@ public:
 	uint8 bCanCharging : 1 = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	uint8 bLookWhisper : 1 = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	float CurrentStamina = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
