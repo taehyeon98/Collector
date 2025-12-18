@@ -74,9 +74,6 @@ public:
 	uint8 bCanCharging : 1 = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
-	uint8 bLookWhisper : 1 = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	float CurrentStamina = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
@@ -86,10 +83,13 @@ public:
 	float UseStamina = 15.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
-	float CurrentHP = 100;
+	float CurrentHP = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
-	float MaxHP = 100;
+	float MaxHP = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	uint8 bLookWhisper : 1 = false;
 
 	FTimerHandle StaminaChargingTimer;
 

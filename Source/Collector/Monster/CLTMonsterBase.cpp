@@ -64,6 +64,8 @@ void ACLTMonsterBase::ChangeSpeed(float NewMaxSpeed)
 void ACLTMonsterBase::SetState(EMonsterState NewState)
 {
 	CurrentState = NewState;
+
+	//Cast<ACLTMonsterController>(GetController())->GetBlackboardComponent();
 }
 
 float ACLTMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

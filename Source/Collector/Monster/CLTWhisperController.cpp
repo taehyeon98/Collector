@@ -33,59 +33,42 @@ void ACLTWhisperController::ProcessActorPerception(AActor* Actor, FAIStimulus St
 {
 	Super::ProcessActorPerception(Actor, Stimulus);
 
+
 	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Sight>())
 	{
 		if (Stimulus.WasSuccessfullySensed())
 		{
 			ACLTCharacter* Player = Cast<ACLTCharacter>(Actor);
 			ACLTMonsterBase* Monster = Cast<ACLTMonsterBase>(GetPawn());
-			if (!(Player->bLookWhisper))
-			{
-				if (Player && Monster)
-				{
-					if (Monster->GetCurrentState() == EMonsterState::Death)
-					{
-						return;
-					}
-
-					Blackboard->SetValueAsObject(TEXT("Target"), Player);
-					SetState(EMonsterState::Chase);
-					Monster->SetState(EMonsterState::Chase);
-					Monster->ChangeSpeed(1000.0f);
-				}
-			}
-			else
-			{
-				if (Player && Monster)
-				{
-					if (Monster->GetCurrentState() == EMonsterState::Death)
-					{
-						return;
-					}
-
-					Blackboard->SetValueAsObject(TEXT("Target"), nullptr);
-					SetState(EMonsterState::Normal);
-					Monster->SetState(EMonsterState::Normal);
-					Monster->ChangeSpeed(0.0f);
-				}
-			}
-		}
-		else
-		{
-			ACLTCharacter* Player = Cast<ACLTCharacter>(Actor);
-			ACLTMonsterBase* Monster = Cast<ACLTMonsterBase>(GetPawn());
+			
 			if (Player && Monster)
 			{
 				if (Monster->GetCurrentState() == EMonsterState::Death)
 				{
 					return;
 				}
-
-				Blackboard->SetValueAsObject(TEXT("Target"), nullptr);
-				SetState(EMonsterState::Normal);
-				Monster->SetState(EMonsterState::Normal);
-				Monster->ChangeSpeed(0.0f);
+				Blackboard->SetValueAsObject(TEXT("Target"), Player);
+				SetState(EMonsterState::Chase);
+				Monster->SetState(EMonsterState::Chase);
+				Monster->ChangeSpeed(1000.0f);
 			}
+		}
+	}
+	else
+	{
+		ACLTCharacter* Player = Cast<ACLTCharacter>(Actor);
+		ACLTMonsterBase* Monster = Cast<ACLTMonsterBase>(GetPawn());
+		if (Player && Monster)
+		{
+			if (Monster->GetCurrentState() == EMonsterState::Death)
+			{
+				return;
+			}
+
+			Blackboard->SetValueAsObject(TEXT("Target"), nullptr);
+			SetState(EMonsterState::Normal);
+			Monster->SetState(EMonsterState::Normal);
+			Monster->ChangeSpeed(0.0f);
 		}
 	}
 }

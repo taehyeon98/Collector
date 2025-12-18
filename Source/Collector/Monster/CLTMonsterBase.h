@@ -60,6 +60,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeSpeed(float NewMaxSpeed);
 
+	UFUNCTION(BlueprintCallable)
 	void SetState(EMonsterState NewState);
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;

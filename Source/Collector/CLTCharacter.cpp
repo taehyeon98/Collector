@@ -63,6 +63,7 @@ void ACLTCharacter::Tick(float DeltaTime)
 		{
 			CurrentStamina = 0.0f;
 			StopSprint();
+			GetWorldTimerManager().ClearTimer(StaminaChargingTimer);
 		}
 	}
 	else if(bCanCharging)

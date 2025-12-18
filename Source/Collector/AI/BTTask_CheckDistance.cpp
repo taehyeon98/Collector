@@ -22,29 +22,29 @@ EBTNodeResult::Type UBTTask_CheckDistance::ExecuteTask(UBehaviorTreeComponent& O
 		FVector MonsterLocation = Monster->GetActorLocation();
 		FVector PlayerLocation = Player->GetActorLocation();
 
-		float Distance = FVector::Dist2D(MonsterLocation, PlayerLocation);
+		float Distance = FVector::Distance(MonsterLocation, PlayerLocation);
 
 		switch (TargetCondition)
 		{
-		case ECondition::GreaterThan:
-		{
-			if (Distance > TargetDistance)
+			case ECondition::GreaterThan:
 			{
-				Monster->SetState(TargetState);
-				OwnerComp.GetBlackboardComponent()->SetValueAsEnum(GetSelectedBlackboardKey(),(uint8)TargetState);
+				if (Distance > TargetDistance)
+				{
+					Monster->SetState(TargetState);
+					OwnerComp.GetBlackboardComponent()->SetValueAsEnum(GetSelectedBlackboardKey(),(uint8)TargetState);
+				}
 			}
 			break;
-		}
 
-		case ECondition::LessThan:
-		{
-			if (Distance < TargetDistance)
+			case ECondition::LessThan:
 			{
-				Monster->SetState(TargetState);
-				OwnerComp.GetBlackboardComponent()->SetValueAsEnum(GetSelectedBlackboardKey(), (uint8)TargetState);
+				if (Distance < TargetDistance)
+				{
+					Monster->SetState(TargetState);
+					OwnerComp.GetBlackboardComponent()->SetValueAsEnum(GetSelectedBlackboardKey(), (uint8)TargetState);
+				}
 			}
 			break;
-		}
 		}
 	}
 
