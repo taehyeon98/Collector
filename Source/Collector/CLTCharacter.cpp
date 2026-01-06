@@ -89,6 +89,7 @@ void ACLTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	{
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Triggered, this, &ACLTCharacter::StartSprint);
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ACLTCharacter::StopSprint);
+		UIC->BindAction(IA_GetItem, ETriggerEvent::Started, this, &ACLTCharacter::GetItem);
 	}
 }
 
@@ -137,6 +138,34 @@ void ACLTCharacter::SpawnFootSound()
 	);
 }
 
+void ACLTCharacter::GetItem()
+{	
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	FVector Start = GetMesh()->GetSocketLocation(FName("root"));
+	FVector End = Start - 20.0f;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+	TArray<AActor*> IngnoreActors;
+	FHitResult HitResult;
+
+	bool bResult = UKismetSystemLibrary::SphereTraceSingleForObjects(
+		GetWorld(),
+		Start,
+		End,
+		40.0f,
+		ObjectTypes,
+		false,
+		IngnoreActors,
+		EDrawDebugTrace::ForDuration,
+		HitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		3.0f
+	);
+	UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *HitResult.GetActor()->GetName());
+}
+
 void ACLTCharacter::StartSprint()
 {
 	bSprint = true;
@@ -182,6 +211,12 @@ void ACLTCharacter::C2S_StopSprint_Implementation()
 }
 
 void ACLTCharacter::CanChargingStamina()
+{
+	bCanCharging = true;
+	C2S_CanChargingStamina();
+}
+
+void ACLTCharacter::C2S_CanChargingStamina_Implementation()
 {
 	bCanCharging = true;
 }

@@ -47,6 +47,9 @@ public:
 	void SpawnFootSound();
 
 	UFUNCTION(BlueprintCallable)
+	void GetItem();
+
+	UFUNCTION(BlueprintCallable)
 	void StartSprint();
 
 	UFUNCTION(Server, Reliable)
@@ -63,6 +66,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CanChargingStamina();
 
+	UFUNCTION(Server,Reliable)
+	void C2S_CanChargingStamina();
+	void C2S_CanChargingStamina_Implementation();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	TObjectPtr<class USoundBase> FootSound;
 
@@ -71,6 +78,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TObjectPtr<UInputAction> IA_Sprint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TObjectPtr<UInputAction> IA_GetItem;
 
 	UPROPERTY(Category = Character, EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAIPerceptionStimuliSourceComponent> StimuliSource;
