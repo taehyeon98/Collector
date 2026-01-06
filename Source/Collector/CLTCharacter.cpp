@@ -142,9 +142,32 @@ void ACLTCharacter::StartSprint()
 	bSprint = true;
 	bCanCharging = false;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+	C2S_StartSprint();
+}
+
+void ACLTCharacter::C2S_StartSprint_Implementation()
+{
+	bSprint = true;
+	bCanCharging = false;
+	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 }
 
 void ACLTCharacter::StopSprint()
+{
+	bSprint = false;
+	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
+
+	GetWorldTimerManager().SetTimer(
+		StaminaChargingTimer,
+		this,
+		&ACLTCharacter::CanChargingStamina,
+		3.0f,
+		false
+	);
+	C2S_StopSprint();
+}
+
+void ACLTCharacter::C2S_StopSprint_Implementation()
 {
 	bSprint = false;
 	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
