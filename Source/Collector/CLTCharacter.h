@@ -49,8 +49,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartSprint();
 
+	UFUNCTION(Server, Reliable)
+	void C2S_StartSprint();
+	void C2S_StartSprint_Implementation();
+
 	UFUNCTION(BlueprintCallable)
 	void StopSprint();
+
+	UFUNCTION(Server,Reliable)
+	void C2S_StopSprint();
+	void C2S_StopSprint_Implementation();
 
 	UFUNCTION(BlueprintCallable)
 	void CanChargingStamina();
