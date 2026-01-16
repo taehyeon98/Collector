@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Hearing.h"
+#include "Item/CLTItemBase.h"
 
 // Sets default values
 ACLTCharacter::ACLTCharacter()
@@ -163,6 +164,9 @@ void ACLTCharacter::GetItem()
 		FLinearColor::Green,
 		3.0f
 	);
+
+	ACLTItemBase* ScanItem = Cast<ACLTItemBase>(HitResult.GetActor());
+
 	UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *HitResult.GetActor()->GetName());
 }
 
