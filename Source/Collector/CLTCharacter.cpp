@@ -13,6 +13,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Hearing.h"
 #include "Item/CLTItemBase.h"
+#include "Item/CLTInventoryComponent.h"
 
 // Sets default values
 ACLTCharacter::ACLTCharacter()
@@ -44,6 +45,8 @@ ACLTCharacter::ACLTCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
 
 	SetGenericTeamId(1);
+
+	InventoryComponent = CreateDefaultSubobject<UCLTInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -166,8 +169,17 @@ void ACLTCharacter::GetItem()
 	);
 
 	ACLTItemBase* ScanItem = Cast<ACLTItemBase>(HitResult.GetActor());
+	if (HitResult.GetActor() == ScanItem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *ScanItem.ItemName.ToString());
+	}
+	if (ScanItem && InventoryComponent)
+	{
+		InventoryComponent->AddItem(ScanItem->ItemName);
+		ScanItem->Destroy();
+	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *HitResult.GetActor()->GetName());
+	
 }
 
 void ACLTCharacter::StartSprint()

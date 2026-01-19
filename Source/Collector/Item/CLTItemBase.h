@@ -35,4 +35,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
 	FItemData ItemData;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
+	FName ItemName;
 };
