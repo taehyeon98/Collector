@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/DataTable.h"
+#include "../CollectorTypes.h"
 #include "CLTItemBase.generated.h"
+
+class UStaticMeshComponent;
 
 UCLASS()
 class COLLECTOR_API ACLTItemBase : public AActor
@@ -23,4 +27,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category = "Component")
+	TObjectPtr<class USphereComponent> Sphere;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
+	TObjectPtr<class UStaticMeshComponent> Item;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
+	FItemData ItemData;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
+	FName ItemName;
 };

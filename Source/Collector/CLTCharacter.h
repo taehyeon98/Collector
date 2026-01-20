@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GenericTeamAgentInterface.h"
+#include "Item/CLTItemBase.h"
 #include "CLTCharacter.generated.h"
 
 class UInputAction;
@@ -47,6 +48,13 @@ public:
 	void SpawnFootSound();
 
 	UFUNCTION(BlueprintCallable)
+	void GetItem();
+
+	UFUNCTION(Server, Reliable)
+	void C2S_GetItem();
+	void C2S_GetItem_Implementation();
+
+	UFUNCTION(BlueprintCallable)
 	void StartSprint();
 
 	UFUNCTION(Server, Reliable)
@@ -63,6 +71,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CanChargingStamina();
 
+	UFUNCTION(Server,Reliable)
+	void C2S_CanChargingStamina();
+	void C2S_CanChargingStamina_Implementation();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	TObjectPtr<class USoundBase> FootSound;
 
@@ -72,34 +84,39 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TObjectPtr<UInputAction> IA_Sprint;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TObjectPtr<UInputAction> IA_GetItem;
+
 	UPROPERTY(Category = Character, EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAIPerceptionStimuliSourceComponent> StimuliSource;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	uint8 bSprint : 1 = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	uint8 bCanCharging : 1 = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	float CurrentStamina = 100.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	float MaxStamina = 100.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	float UseStamina = 15.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	float CurrentHP = 100.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	float MaxHP = 100.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	uint8 bLookWhisper : 1 = false;
 
 	FTimerHandle StaminaChargingTimer;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/** Assigns Team Agent to given TeamID */
 	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;

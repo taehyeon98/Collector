@@ -10,8 +10,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Hearing.h"
+#include "Item/CLTItemBase.h"
+#include "Item/CLTInventoryComponent.h"
 
 // Sets default values
 ACLTCharacter::ACLTCharacter()
@@ -89,6 +92,7 @@ void ACLTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	{
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Triggered, this, &ACLTCharacter::StartSprint);
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ACLTCharacter::StopSprint);
+		UIC->BindAction(IA_GetItem, ETriggerEvent::Started, this, &ACLTCharacter::GetItem);
 	}
 }
 
@@ -108,6 +112,20 @@ void ACLTCharacter::Aim(float Pitch, float Yaw)
 {
 	AddControllerPitchInput(Pitch);
 	AddControllerYawInput(Yaw);
+}
+
+void ACLTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACLTCharacter, bSprint);
+	DOREPLIFETIME(ACLTCharacter, bCanCharging);
+	DOREPLIFETIME(ACLTCharacter, CurrentStamina);
+	DOREPLIFETIME(ACLTCharacter, MaxStamina);
+	DOREPLIFETIME(ACLTCharacter, UseStamina);
+	DOREPLIFETIME(ACLTCharacter, CurrentHP);
+	DOREPLIFETIME(ACLTCharacter, MaxHP);
+	DOREPLIFETIME(ACLTCharacter, bLookWhisper);
 }
 
 void ACLTCharacter::SetGenericTeamId(const FGenericTeamId& InTeamID)
@@ -135,6 +153,65 @@ void ACLTCharacter::SpawnFootSound()
 		this,
 		-1
 	);
+}
+
+void ACLTCharacter::GetItem()
+{	
+	if (GetOwner()->HasAuthority())
+	{
+		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+		FVector Start = GetMesh()->GetSocketLocation(FName("root"));
+		FVector End = Start - 20.0f;
+		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
+		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+		TArray<AActor*> IngnoreActors;
+		FHitResult HitResult;
+
+		bool bResult = UKismetSystemLibrary::SphereTraceSingleForObjects(
+			GetWorld(),
+			Start,
+			End,
+			40.0f,
+			ObjectTypes,
+			false,
+			IngnoreActors,
+			EDrawDebugTrace::ForDuration,
+			HitResult,
+			true,
+			FLinearColor::Red,
+			FLinearColor::Green,
+			3.0f
+		);
+		ACLTItemBase* ScanItem = Cast<ACLTItemBase>(HitResult.GetActor());
+		UCLTInventoryComponent* InventoryComponent = FindComponentByClass<UCLTInventoryComponent>();
+
+		if (ScanItem && InventoryComponent)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *ScanItem->ItemName.ToString());
+
+			if (InventoryComponent->AddItem(ScanItem->ItemName))
+			{
+				ScanItem->Destroy();
+				for (int i = 0; i < InventoryComponent->Inventory.Num(); i++)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("현재 인벤토리 아이템: %s"), *InventoryComponent->Inventory[i].Name.ToString());
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Inventory is Full"));
+			}
+		}
+	}
+	else
+	{
+		C2S_GetItem();
+	}
+}
+
+void ACLTCharacter::C2S_GetItem_Implementation()
+{
+	GetItem();
 }
 
 void ACLTCharacter::StartSprint()
@@ -182,6 +259,12 @@ void ACLTCharacter::C2S_StopSprint_Implementation()
 }
 
 void ACLTCharacter::CanChargingStamina()
+{
+	bCanCharging = true;
+	C2S_CanChargingStamina();
+}
+
+void ACLTCharacter::C2S_CanChargingStamina_Implementation()
 {
 	bCanCharging = true;
 }
