@@ -26,12 +26,18 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Data")
 	UDataTable* ItemDataTable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data", Replicated)
 	TArray<FItemData> Inventory;
 
 	UFUNCTION(BlueprintCallable)
 	bool AddItem(FName RowName);
+
+	UFUNCTION(Server, Reliable)
+	void C2S_AddItem(FName RowName);
+	void C2S_AddItem_Implementation(FName RowName);
 };

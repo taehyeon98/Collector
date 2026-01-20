@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Hearing.h"
 #include "Item/CLTItemBase.h"
@@ -45,8 +46,6 @@ ACLTCharacter::ACLTCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
 
 	SetGenericTeamId(1);
-
-	InventoryComponent = CreateDefaultSubobject<UCLTInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -115,6 +114,20 @@ void ACLTCharacter::Aim(float Pitch, float Yaw)
 	AddControllerYawInput(Yaw);
 }
 
+void ACLTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACLTCharacter, bSprint);
+	DOREPLIFETIME(ACLTCharacter, bCanCharging);
+	DOREPLIFETIME(ACLTCharacter, CurrentStamina);
+	DOREPLIFETIME(ACLTCharacter, MaxStamina);
+	DOREPLIFETIME(ACLTCharacter, UseStamina);
+	DOREPLIFETIME(ACLTCharacter, CurrentHP);
+	DOREPLIFETIME(ACLTCharacter, MaxHP);
+	DOREPLIFETIME(ACLTCharacter, bLookWhisper);
+}
+
 void ACLTCharacter::SetGenericTeamId(const FGenericTeamId& InTeamID)
 {
 	TeamID = InTeamID;
@@ -144,42 +157,61 @@ void ACLTCharacter::SpawnFootSound()
 
 void ACLTCharacter::GetItem()
 {	
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	FVector Start = GetMesh()->GetSocketLocation(FName("root"));
-	FVector End = Start - 20.0f;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
-	TArray<AActor*> IngnoreActors;
-	FHitResult HitResult;
-
-	bool bResult = UKismetSystemLibrary::SphereTraceSingleForObjects(
-		GetWorld(),
-		Start,
-		End,
-		40.0f,
-		ObjectTypes,
-		false,
-		IngnoreActors,
-		EDrawDebugTrace::ForDuration,
-		HitResult,
-		true,
-		FLinearColor::Red,
-		FLinearColor::Green,
-		3.0f
-	);
-
-	ACLTItemBase* ScanItem = Cast<ACLTItemBase>(HitResult.GetActor());
-	if (HitResult.GetActor() == ScanItem)
+	if (GetOwner()->HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *ScanItem.ItemName.ToString());
-	}
-	if (ScanItem && InventoryComponent)
-	{
-		InventoryComponent->AddItem(ScanItem->ItemName);
-		ScanItem->Destroy();
-	}
+		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+		FVector Start = GetMesh()->GetSocketLocation(FName("root"));
+		FVector End = Start - 20.0f;
+		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
+		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+		TArray<AActor*> IngnoreActors;
+		FHitResult HitResult;
 
-	
+		bool bResult = UKismetSystemLibrary::SphereTraceSingleForObjects(
+			GetWorld(),
+			Start,
+			End,
+			40.0f,
+			ObjectTypes,
+			false,
+			IngnoreActors,
+			EDrawDebugTrace::ForDuration,
+			HitResult,
+			true,
+			FLinearColor::Red,
+			FLinearColor::Green,
+			3.0f
+		);
+		ACLTItemBase* ScanItem = Cast<ACLTItemBase>(HitResult.GetActor());
+		UCLTInventoryComponent* InventoryComponent = FindComponentByClass<UCLTInventoryComponent>();
+
+		if (ScanItem && InventoryComponent)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *ScanItem->ItemName.ToString());
+
+			if (InventoryComponent->AddItem(ScanItem->ItemName))
+			{
+				ScanItem->Destroy();
+				for (int i = 0; i < InventoryComponent->Inventory.Num(); i++)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("현재 인벤토리 아이템: %s"), *InventoryComponent->Inventory[i].Name.ToString());
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Inventory is Full"));
+			}
+		}
+	}
+	else
+	{
+		C2S_GetItem();
+	}
+}
+
+void ACLTCharacter::C2S_GetItem_Implementation()
+{
+	GetItem();
 }
 
 void ACLTCharacter::StartSprint()

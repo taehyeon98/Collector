@@ -2,6 +2,7 @@
 
 
 #include "CLTInventoryComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UCLTInventoryComponent::UCLTInventoryComponent()
@@ -22,7 +23,7 @@ void UCLTInventoryComponent::BeginPlay()
 	Inventory.Init(FItemData(), 4);
 	for (int32 i = 0; i < Inventory.Num(); i++)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("½½·Ô ÃÊ±âÈ­ [%d] : %s"), i, *Inventory[i].Name.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ [%d] : %s"), i, *Inventory[i].Name.ToString());
 	}
 }
 
@@ -35,24 +36,46 @@ void UCLTInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
+void UCLTInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCLTInventoryComponent, Inventory);
+}
+
 bool UCLTInventoryComponent::AddItem(FName RowName)
 {
-	if (!ItemDataTable)
+	UE_LOG(LogTemp, Warning, TEXT("AddItem ì‹¤í–‰"));
+	if (GetOwner()->HasAuthority())
 	{
-		return false;
-	}
-	FItemData* OutRow = ItemDataTable->FindRow<FItemData>(RowName, TEXT("Get Item"));
-	if (OutRow)
-	{
-		for (int32 i = 0; i < Inventory.Num(); i++)
+		if (!ItemDataTable)
 		{
-			if(Inventory[i].Name == TEXT("Empty"))
+			UE_LOG(LogTemp, Warning, TEXT("None Data Table"));
+			return false;
+		}
+		FItemData* OutRow = ItemDataTable->FindRow<FItemData>(RowName, TEXT("Get Item"));
+		if (OutRow)
+		{
+			for (int32 i = 0; i < Inventory.Num(); i++)
 			{
-				Inventory[i] = *OutRow;
-				return true;
+				if (Inventory[i].Name == TEXT("Empty"))
+				{
+					Inventory[i] = *OutRow;
+					return true;
+				}
 			}
 		}
+		return false;
 	}
-	return false;
+	else
+	{
+		C2S_AddItem(RowName);
+		return false;
+	}
+}
+
+void UCLTInventoryComponent::C2S_AddItem_Implementation(FName RowName)
+{
+	AddItem(RowName);
 }
 
