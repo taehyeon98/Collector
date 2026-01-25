@@ -15,6 +15,7 @@
 #include "Perception/AISenseConfig_Hearing.h"
 #include "Item/CLTItemBase.h"
 #include "Item/CLTInventoryComponent.h"
+#include "Item/CLTDoor.h"
 
 // Sets default values
 ACLTCharacter::ACLTCharacter()
@@ -93,6 +94,7 @@ void ACLTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Triggered, this, &ACLTCharacter::StartSprint);
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ACLTCharacter::StopSprint);
 		UIC->BindAction(IA_GetItem, ETriggerEvent::Started, this, &ACLTCharacter::GetItem);
+		UIC->BindAction(IA_OpenDoor, ETriggerEvent::Started, this, &ACLTCharacter::OpenDoor);
 	}
 }
 
@@ -267,5 +269,49 @@ void ACLTCharacter::CanChargingStamina()
 void ACLTCharacter::C2S_CanChargingStamina_Implementation()
 {
 	bCanCharging = true;
+}
+
+void ACLTCharacter::OpenDoor()
+{
+	if (GetOwner()->HasAuthority())
+	{
+		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+		FVector Start = FirstCamera->GetComponentLocation();
+		FVector End = Start + (FirstCamera->GetForwardVector() * 100.0f);
+		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
+		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+		TArray<AActor*> IngnoreActors;
+		FHitResult HitResult;
+
+		bool bResult = UKismetSystemLibrary::LineTraceSingleForObjects(
+			GetWorld(),
+			Start,
+			End,
+			ObjectTypes,
+			false,
+			IngnoreActors,
+			EDrawDebugTrace::ForDuration, // Debug draw enabled
+			HitResult,
+			true,
+			FLinearColor::Blue, // Distinction color
+			FLinearColor::Green,
+			3.0f
+		);
+
+		ACLTDoor* ScanDoor = Cast<ACLTDoor>(HitResult.GetActor());
+		if (ScanDoor)
+		{
+			ScanDoor->Open(this);
+		}
+	}
+	else
+	{
+		C2S_OpenDoor();
+	}
+}
+
+void ACLTCharacter::C2S_OpenDoor_Implementation()
+{
+	OpenDoor();
 }
 

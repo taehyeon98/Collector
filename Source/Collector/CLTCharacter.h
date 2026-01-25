@@ -116,6 +116,16 @@ public:
 
 	FTimerHandle StaminaChargingTimer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TObjectPtr<UInputAction> IA_OpenDoor;
+
+	UFUNCTION(BlueprintCallable)
+	void OpenDoor();
+
+	UFUNCTION(Server, Reliable)
+	void C2S_OpenDoor();
+	void C2S_OpenDoor_Implementation();
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/** Assigns Team Agent to given TeamID */
