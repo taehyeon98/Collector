@@ -95,6 +95,7 @@ void ACLTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ACLTCharacter::StopSprint);
 		UIC->BindAction(IA_GetItem, ETriggerEvent::Started, this, &ACLTCharacter::GetItem);
 		UIC->BindAction(IA_OpenDoor, ETriggerEvent::Started, this, &ACLTCharacter::OpenDoor);
+		UIC->BindAction(IA_UseItemSlot, ETriggerEvent::Started, this, &ACLTCharacter::OnUseItemSlot);
 	}
 }
 
@@ -128,6 +129,7 @@ void ACLTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ACLTCharacter, CurrentHP);
 	DOREPLIFETIME(ACLTCharacter, MaxHP);
 	DOREPLIFETIME(ACLTCharacter, bLookWhisper);
+	DOREPLIFETIME(ACLTCharacter, PlayerGold);
 }
 
 void ACLTCharacter::SetGenericTeamId(const FGenericTeamId& InTeamID)
@@ -313,5 +315,53 @@ void ACLTCharacter::OpenDoor()
 void ACLTCharacter::C2S_OpenDoor_Implementation()
 {
 	OpenDoor();
+}
+
+void ACLTCharacter::OnUseItemSlot(const FInputActionValue& Value)
+{
+    // Axis Value (1.0, 2.0, 3.0, 4.0) returned from input
+    float InputValue = Value.Get<float>();
+    int32 SlotIndex = FMath::RoundToInt(InputValue) - 1; // Convert 1-based to 0-based
+
+    UseItemInSlot(SlotIndex);
+}
+
+void ACLTCharacter::UseItemInSlot(int32 SlotIndex)
+{
+    if (GetOwner()->HasAuthority())
+    {
+        UCLTInventoryComponent* InventoryComponent = FindComponentByClass<UCLTInventoryComponent>();
+        if (InventoryComponent)
+        {
+            // Check valid index
+            if (InventoryComponent->Inventory.IsValidIndex(SlotIndex))
+            {
+                const FItemData& ItemData = InventoryComponent->Inventory[SlotIndex];
+                
+
+                // Check if item is not empty
+                if (!ItemData.Name.IsEqual(FName("Empty")))
+                {
+                    UE_LOG(LogTemp, Log, TEXT("Using Item in Slot %d: %s"), SlotIndex + 1, *ItemData.Name.ToString());
+                    
+                    // Here you can add logic to actually use the item
+                    // E.g., EquipItem(ItemData) or ConsumeItem(ItemData)
+                }
+                else
+                {
+                   UE_LOG(LogTemp, Warning, TEXT("Slot %d is Empty."), SlotIndex + 1);
+                }
+            }
+        }
+    }
+    else
+    {
+        C2S_UseItemInSlot(SlotIndex);
+    }
+}
+
+void ACLTCharacter::C2S_UseItemInSlot_Implementation(int32 SlotIndex)
+{
+    UseItemInSlot(SlotIndex);
 }
 

@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GenericTeamAgentInterface.h"
 #include "Item/CLTItemBase.h"
+#include "InputActionValue.h"
 #include "CLTCharacter.generated.h"
 
 class UInputAction;
@@ -75,6 +76,23 @@ public:
 	void C2S_CanChargingStamina();
 	void C2S_CanChargingStamina_Implementation();
 
+	UFUNCTION(BlueprintCallable)
+	void OpenDoor();
+
+	UFUNCTION(Server, Reliable)
+	void C2S_OpenDoor();
+	void C2S_OpenDoor_Implementation();
+
+    // Inventory Usage
+    void OnUseItemSlot(const FInputActionValue& Value);
+
+    UFUNCTION(BlueprintCallable)
+    void UseItemInSlot(int32 SlotIndex);
+
+    UFUNCTION(Server, Reliable)
+    void C2S_UseItemInSlot(int32 SlotIndex);
+    void C2S_UseItemInSlot_Implementation(int32 SlotIndex);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	TObjectPtr<class USoundBase> FootSound;
 
@@ -86,6 +104,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TObjectPtr<UInputAction> IA_GetItem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TObjectPtr<UInputAction> IA_OpenDoor;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TObjectPtr<UInputAction> IA_UseItemSlot;
 
 	UPROPERTY(Category = Character, EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAIPerceptionStimuliSourceComponent> StimuliSource;
@@ -112,19 +136,12 @@ public:
 	float MaxHP = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
+	int32 PlayerGold = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	uint8 bLookWhisper : 1 = false;
 
 	FTimerHandle StaminaChargingTimer;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-	TObjectPtr<UInputAction> IA_OpenDoor;
-
-	UFUNCTION(BlueprintCallable)
-	void OpenDoor();
-
-	UFUNCTION(Server, Reliable)
-	void C2S_OpenDoor();
-	void C2S_OpenDoor_Implementation();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
