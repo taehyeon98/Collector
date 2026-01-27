@@ -31,4 +31,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void InStoreZone(APawn* InstigatorPawn);
+
+	UFUNCTION()
+	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void SellItem(class ACLTItemBase* Item);
 };

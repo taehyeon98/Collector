@@ -33,9 +33,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
 	TObjectPtr<class UStaticMeshComponent> Item;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component", ReplicatedUsing = OnRep_ItemData)
 	FItemData ItemData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component", Replicated)
 	FName ItemName;
+
+	UFUNCTION()
+	void OnRep_ItemData();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

@@ -11,6 +11,7 @@
 
 class UInputAction;
 class UAIPerceptionStimuliSourceComponent;
+class ACLTItemBase;
 
 UCLASS()
 class COLLECTOR_API ACLTCharacter : public ACharacter, public IGenericTeamAgentInterface
@@ -70,6 +71,20 @@ public:
 	void C2S_StopSprint_Implementation();
 
 	UFUNCTION(BlueprintCallable)
+	void StartWalk();
+
+	UFUNCTION(Server, Reliable)
+	void C2S_StartWalk();
+	void C2S_StartWalk_Implementation();
+
+	UFUNCTION(BlueprintCallable)
+	void StopWalk();
+
+	UFUNCTION(Server, Reliable)
+	void C2S_StopWalk();
+	void C2S_StopWalk_Implementation();
+
+	UFUNCTION(BlueprintCallable)
 	void CanChargingStamina();
 
 	UFUNCTION(Server,Reliable)
@@ -93,6 +108,15 @@ public:
     void C2S_UseItemInSlot(int32 SlotIndex);
     void C2S_UseItemInSlot_Implementation(int32 SlotIndex);
 
+	UFUNCTION(BlueprintCallable)
+	void DropItem();
+
+	UFUNCTION(Server, Reliable)
+	void C2S_DropItem(int32 SlotIndex);
+	void C2S_DropItem_Implementation(int32 SlotIndex);
+
+	int32 CurrentSelectedSlotIndex = -1;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	TObjectPtr<class USoundBase> FootSound;
 
@@ -103,6 +127,9 @@ public:
 	TObjectPtr<UInputAction> IA_Sprint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TObjectPtr<UInputAction> IA_Walk;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TObjectPtr<UInputAction> IA_GetItem;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
@@ -111,11 +138,17 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TObjectPtr<UInputAction> IA_UseItemSlot;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TObjectPtr<UInputAction> IA_Drop;
+
 	UPROPERTY(Category = Character, EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAIPerceptionStimuliSourceComponent> StimuliSource;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	uint8 bSprint : 1 = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
+	uint8 bWalk : 1 = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	uint8 bCanCharging : 1 = false;

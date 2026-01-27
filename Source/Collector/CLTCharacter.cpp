@@ -93,9 +93,12 @@ void ACLTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	{
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Triggered, this, &ACLTCharacter::StartSprint);
 		UIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ACLTCharacter::StopSprint);
+		UIC->BindAction(IA_Walk, ETriggerEvent::Triggered, this, &ACLTCharacter::StartWalk);
+		UIC->BindAction(IA_Walk, ETriggerEvent::Completed, this, &ACLTCharacter::StopWalk);
 		UIC->BindAction(IA_GetItem, ETriggerEvent::Started, this, &ACLTCharacter::GetItem);
 		UIC->BindAction(IA_OpenDoor, ETriggerEvent::Started, this, &ACLTCharacter::OpenDoor);
 		UIC->BindAction(IA_UseItemSlot, ETriggerEvent::Started, this, &ACLTCharacter::OnUseItemSlot);
+		UIC->BindAction(IA_Drop, ETriggerEvent::Started, this, &ACLTCharacter::DropItem);
 	}
 }
 
@@ -130,6 +133,7 @@ void ACLTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ACLTCharacter, MaxHP);
 	DOREPLIFETIME(ACLTCharacter, bLookWhisper);
 	DOREPLIFETIME(ACLTCharacter, PlayerGold);
+	DOREPLIFETIME(ACLTCharacter, bWalk);
 }
 
 void ACLTCharacter::SetGenericTeamId(const FGenericTeamId& InTeamID)
@@ -144,6 +148,11 @@ FGenericTeamId ACLTCharacter::GetGenericTeamId() const
 
 void ACLTCharacter::SpawnFootSound()
 {
+	if (bWalk)
+	{
+		return;
+	}
+
 	UGameplayStatics::SpawnSoundAtLocation(
 		GetWorld(),
 		FootSound,
@@ -262,6 +271,32 @@ void ACLTCharacter::C2S_StopSprint_Implementation()
 	);
 }
 
+void ACLTCharacter::StartWalk()
+{
+	bWalk = true;
+	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
+	C2S_StartWalk();
+}
+
+void ACLTCharacter::C2S_StartWalk_Implementation()
+{
+	bWalk = true;
+	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
+}
+
+void ACLTCharacter::StopWalk()
+{
+	bWalk = false;
+	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
+	C2S_StopWalk();
+}
+
+void ACLTCharacter::C2S_StopWalk_Implementation()
+{
+	bWalk = false;
+	GetCharacterMovement()->MaxWalkSpeed = 350.0f;
+}
+
 void ACLTCharacter::CanChargingStamina()
 {
 	bCanCharging = true;
@@ -323,6 +358,7 @@ void ACLTCharacter::OnUseItemSlot(const FInputActionValue& Value)
     float InputValue = Value.Get<float>();
     int32 SlotIndex = FMath::RoundToInt(InputValue) - 1; // Convert 1-based to 0-based
 
+    CurrentSelectedSlotIndex = SlotIndex;
     UseItemInSlot(SlotIndex);
 }
 
@@ -351,6 +387,8 @@ void ACLTCharacter::UseItemInSlot(int32 SlotIndex)
                 {
                    UE_LOG(LogTemp, Warning, TEXT("Slot %d is Empty."), SlotIndex + 1);
                 }
+				
+				CurrentSelectedSlotIndex = SlotIndex;
             }
         }
     }
@@ -363,5 +401,63 @@ void ACLTCharacter::UseItemInSlot(int32 SlotIndex)
 void ACLTCharacter::C2S_UseItemInSlot_Implementation(int32 SlotIndex)
 {
     UseItemInSlot(SlotIndex);
+}
+
+void ACLTCharacter::DropItem()
+{
+	if (CurrentSelectedSlotIndex < 0)
+	{
+		return;
+	}
+	
+	C2S_DropItem(CurrentSelectedSlotIndex);
+}
+
+void ACLTCharacter::C2S_DropItem_Implementation(int32 SlotIndex)
+{
+	UCLTInventoryComponent* InventoryComponent = FindComponentByClass<UCLTInventoryComponent>();
+	if (InventoryComponent)
+	{
+		FName RemovedItemName = InventoryComponent->RemoveItem(SlotIndex);
+		if (!RemovedItemName.IsNone())
+		{
+            FVector TraceStart = GetActorLocation() + (GetActorForwardVector() * 100.0f);
+            FVector TraceEnd = TraceStart - FVector(0.0f, 0.0f, 500.0f);
+            FHitResult HitResult;
+            FVector SpawnLocation = TraceStart;
+
+            bool bHit = GetWorld()->LineTraceSingleByChannel(
+                HitResult,
+                TraceStart,
+                TraceEnd,
+                ECC_Visibility
+            );
+
+            if (bHit)
+            {
+                SpawnLocation = HitResult.Location;
+            }
+
+			FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+			
+			ACLTItemBase* SpawnedItem = GetWorld()->SpawnActorDeferred<ACLTItemBase>(ACLTItemBase::StaticClass(), SpawnTransform, this, this);
+			if (SpawnedItem)
+			{
+				SpawnedItem->ItemName = RemovedItemName;
+				// Optional: Load Mesh from Data Table if needed (assuming ItemName is RowName)
+				if (InventoryComponent->ItemDataTable)
+				{
+					FItemData* ItemData = InventoryComponent->ItemDataTable->FindRow<FItemData>(RemovedItemName, TEXT("Drop Item"));
+					if (ItemData && ItemData->Mesh && SpawnedItem->Item)
+					{
+						SpawnedItem->Item->SetStaticMesh(ItemData->Mesh);
+						SpawnedItem->ItemData = *ItemData; // Copy data
+					}
+				}
+				
+				UGameplayStatics::FinishSpawningActor(SpawnedItem, SpawnTransform);
+			}
+		}
+	}
 }
 

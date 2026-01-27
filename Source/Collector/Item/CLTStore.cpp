@@ -4,6 +4,9 @@
 #include "CLTStore.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "CLTItemBase.h"
+#include "../CLTCharacter.h"
+#include "TimerManager.h"
 
 // Sets default values
 ACLTStore::ACLTStore()
@@ -22,6 +25,7 @@ void ACLTStore::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	StoreZone->OnComponentBeginOverlap.AddDynamic(this, &ACLTStore::OnOverlap);
 }
 
 // Called every frame
@@ -34,5 +38,35 @@ void ACLTStore::Tick(float DeltaTime)
 void ACLTStore::InStoreZone(APawn* InstigatorPawn)
 {
 	
+}
+
+void ACLTStore::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ACLTItemBase* Item = Cast<ACLTItemBase>(OtherActor);
+	if (Item)
+	{
+		FTimerDelegate TimerDel;
+		TimerDel.BindUObject(this, &ACLTStore::SellItem, Item);
+		
+		FTimerHandle Handle;
+		GetWorld()->GetTimerManager().SetTimer(Handle, TimerDel, 5.0f, false);
+	}
+}
+
+void ACLTStore::SellItem(ACLTItemBase* Item)
+{
+	if (IsValid(Item))
+	{
+		// Check invalid pointer again just in case destroyed
+		ACLTCharacter* Character = Cast<ACLTCharacter>(Item->GetInstigator());
+		if (Character)
+		{
+			// Assuming Coin is in ItemData
+			int32 Price = Item->ItemData.Coin;
+			Character->PlayerGold += Price;
+			UE_LOG(LogTemp, Log, TEXT("Sold %s for %d Gold. Total Gold: %d"), *Item->ItemName.ToString(), Price, Character->PlayerGold);
+		}
+		Item->Destroy();
+	}
 }
 

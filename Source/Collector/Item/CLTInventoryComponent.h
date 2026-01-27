@@ -37,6 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool AddItem(FName RowName);
 
+	UFUNCTION(BlueprintCallable)
+	FName RemoveItem(int32 SlotIndex);
+
 	UFUNCTION(Server, Reliable)
 	void C2S_AddItem(FName RowName);
 	void C2S_AddItem_Implementation(FName RowName);
