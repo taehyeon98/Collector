@@ -132,7 +132,6 @@ void ACLTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ACLTCharacter, CurrentHP);
 	DOREPLIFETIME(ACLTCharacter, MaxHP);
 	DOREPLIFETIME(ACLTCharacter, bLookWhisper);
-	DOREPLIFETIME(ACLTCharacter, PlayerGold);
 	DOREPLIFETIME(ACLTCharacter, bWalk);
 }
 

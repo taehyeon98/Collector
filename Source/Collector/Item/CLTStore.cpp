@@ -2,10 +2,11 @@
 
 
 #include "CLTStore.h"
-#include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "CLTItemBase.h"
 #include "../CLTCharacter.h"
+#include "../CLTGameState.h"
 #include "TimerManager.h"
 
 // Sets default values
@@ -16,8 +17,8 @@ ACLTStore::ACLTStore()
 
 	StoreZone = CreateDefaultSubobject<UBoxComponent>(TEXT("StoreZone"));
 
-	Store = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Store"));
-	Store->SetupAttachment(StoreZone);
+	StoreMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("StoreMesh"));
+	StoreMesh->SetupAttachment(StoreZone);
 }
 
 // Called when the game starts or when spawned
@@ -63,8 +64,12 @@ void ACLTStore::SellItem(ACLTItemBase* Item)
 		{
 			// Assuming Coin is in ItemData
 			int32 Price = Item->ItemData.Coin;
-			Character->PlayerGold += Price;
-			UE_LOG(LogTemp, Log, TEXT("Sold %s for %d Gold. Total Gold: %d"), *Item->ItemName.ToString(), Price, Character->PlayerGold);
+			
+			if (ACLTGameState* GS = GetWorld()->GetGameState<ACLTGameState>())
+			{
+				GS->SharedGold += Price;
+				UE_LOG(LogTemp, Log, TEXT("Sold %s for %d Gold. Shared Gold: %d"), *Item->ItemName.ToString(), Price, GS->SharedGold);
+			}
 		}
 		Item->Destroy();
 	}

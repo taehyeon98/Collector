@@ -168,8 +168,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	float MaxHP = 100.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
-	int32 PlayerGold = 0;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data, Replicated)
 	uint8 bLookWhisper : 1 = false;

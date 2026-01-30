@@ -2,4 +2,10 @@
 
 
 #include "CLTGM.h"
+#include "CLTGameState.h"
+
+ACLTGM::ACLTGM()
+{
+	GameStateClass = ACLTGameState::StaticClass();
+}
 
