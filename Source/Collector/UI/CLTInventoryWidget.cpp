@@ -4,43 +4,48 @@
 #include "CLTInventoryWidget.h"
 #include "CLTItemSlotWidget.h"
 #include "Components/UniformGridPanel.h"
+#include "../Item/CLTInventoryComponent.h"
+#include "../CollectorTypes.h"
 
-void UCLTInventoryWidget::ClearInventory()
+void UCLTInventoryWidget::Init(UCLTInventoryComponent* InInventoryComponent)
 {
-	if (ItemGrid)
+	if (InInventoryComponent)
 	{
-		ItemGrid->ClearChildren();
+		InventoryComponent = InInventoryComponent;
+		InventoryComponent->OnInventoryUpdated.AddDynamic(this, &UCLTInventoryWidget::UpdateInventory);
+		UpdateInventory();
 	}
-	CurrentSlotIndex = 0;
 }
 
-void UCLTInventoryWidget::AddItem(FText Name, UTexture2D* Icon, int32 Quantity)
+void UCLTInventoryWidget::UpdateInventory()
 {
-	if (!ItemGrid)
+	if (!InventoryComponent) return;
+	if (!ItemGrid) return;
+	if (!SlotWidgetClass) return;
+
+	ItemGrid->ClearChildren();
+	CurrentSlotIndex = 0;
+
+	const TArray<FItemData>& InventoryItems = InventoryComponent->Inventory;
+
+	for (const FItemData& Item : InventoryItems)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CLTInventoryWidget: ItemGrid is null. Make sure to bind it in the Widget Blueprint."));
-		return;
-	}
+		// Create the slot widget
+		UCLTItemSlotWidget* NewSlot = CreateWidget<UCLTItemSlotWidget>(this, SlotWidgetClass);
+		if (NewSlot)
+		{
+			// Add Item even if empty to keep grid structure, or filter if desired. 
+			// Assuming we want to show all slots including empty ones:
+			NewSlot->InitSlot(FText::FromName(Item.Name), Item.Icon, 1); // Quantity 1 for now
 
-	if (!SlotWidgetClass)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("CLTInventoryWidget: SlotWidgetClass is not set. Please set it in the Widget Blueprint defaults."));
-		return;
-	}
+			// Calculate row and column
+			int32 Row = CurrentSlotIndex / ColumnsPerRow;
+			int32 Column = CurrentSlotIndex % ColumnsPerRow;
 
-	// Create the slot widget
-	UCLTItemSlotWidget* NewSlot = CreateWidget<UCLTItemSlotWidget>(this, SlotWidgetClass);
-	if (NewSlot)
-	{
-		NewSlot->InitSlot(Name, Icon, Quantity);
+			// Add to grid
+			ItemGrid->AddChildToUniformGrid(NewSlot, Row, Column);
 
-		// Calculate row and column
-		int32 Row = CurrentSlotIndex / ColumnsPerRow;
-		int32 Column = CurrentSlotIndex % ColumnsPerRow;
-
-		// Add to grid
-		ItemGrid->AddChildToUniformGrid(NewSlot, Row, Column);
-
-		CurrentSlotIndex++;
+			CurrentSlotIndex++;
+		}
 	}
 }

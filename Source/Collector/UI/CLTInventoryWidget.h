@@ -8,6 +8,8 @@
 
 class UUniformGridPanel;
 class UCLTItemSlotWidget;
+class UCLTInventoryComponent;
+struct FItemData;
 
 /**
  * 
@@ -18,11 +20,12 @@ class COLLECTOR_API UCLTInventoryWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	// Initialize with inventory component
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void ClearInventory();
+	void Init(UCLTInventoryComponent* InInventoryComponent);
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void AddItem(FText Name, UTexture2D* Icon, int32 Quantity);
+	void UpdateInventory();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -38,4 +41,7 @@ private:
     // Configurable columns count
     UPROPERTY(EditDefaultsOnly, Category = "Inventory")
     int32 ColumnsPerRow = 4;
+
+	UPROPERTY()
+	TObjectPtr<UCLTInventoryComponent> InventoryComponent;
 };

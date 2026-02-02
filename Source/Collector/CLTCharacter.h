@@ -12,6 +12,7 @@
 class UInputAction;
 class UAIPerceptionStimuliSourceComponent;
 class ACLTItemBase;
+class UCLTInventoryWidget; // Forward declarations
 
 UCLASS()
 class COLLECTOR_API ACLTCharacter : public ACharacter, public IGenericTeamAgentInterface
@@ -138,8 +139,17 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TObjectPtr<UInputAction> IA_UseItemSlot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-	TObjectPtr<UInputAction> IA_Drop;
+	// Inventory & UI
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* IA_Drop;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UCLTInventoryWidget> InventoryWidgetClass;
+
+	UPROPERTY()
+	UCLTInventoryWidget* InventoryWidget;
+
+	void ToggleInventory();
 
 	UPROPERTY(Category = Character, EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAIPerceptionStimuliSourceComponent> StimuliSource;

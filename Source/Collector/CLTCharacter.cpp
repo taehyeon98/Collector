@@ -16,6 +16,8 @@
 #include "Item/CLTItemBase.h"
 #include "Item/CLTInventoryComponent.h"
 #include "Item/CLTDoor.h"
+#include "UI/CLTInventoryWidget.h"
+#include "Blueprint/UserWidget.h" // For CreateWidget
 
 // Sets default values
 ACLTCharacter::ACLTCharacter()
@@ -53,6 +55,21 @@ ACLTCharacter::ACLTCharacter()
 void ACLTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsLocallyControlled() && InventoryWidgetClass)
+	{
+		InventoryWidget = CreateWidget<UCLTInventoryWidget>(GetWorld(), InventoryWidgetClass);
+		if (InventoryWidget)
+		{
+			UCLTInventoryComponent* InventoryComp = FindComponentByClass<UCLTInventoryComponent>();
+			if (InventoryComp)
+			{
+				InventoryWidget->Init(InventoryComp);
+			}
+			InventoryWidget->AddToViewport();
+			InventoryWidget->SetVisibility(ESlateVisibility::Visible); // Always Visible
+		}
+	}
 }
 
 // Called every frame
@@ -98,7 +115,37 @@ void ACLTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		UIC->BindAction(IA_GetItem, ETriggerEvent::Started, this, &ACLTCharacter::GetItem);
 		UIC->BindAction(IA_OpenDoor, ETriggerEvent::Started, this, &ACLTCharacter::OpenDoor);
 		UIC->BindAction(IA_UseItemSlot, ETriggerEvent::Started, this, &ACLTCharacter::OnUseItemSlot);
+		UIC->BindAction(IA_UseItemSlot, ETriggerEvent::Started, this, &ACLTCharacter::OnUseItemSlot);
 		UIC->BindAction(IA_Drop, ETriggerEvent::Started, this, &ACLTCharacter::DropItem);
+		
+		// Assuming we re-use IA_Drop or a new IA_Inventory for toggling. 
+		// For now, I'll allow binding via a new input or just hook into an existing one if available. 
+		// NOTE: User didn't specify an input action for Inventory. I will add a bind if I find a suitable place or just leave the function available for blueprint binding.
+		// Detailed plan said: "Top-Level Input: Add logic... e.g valid IA_Inventory".
+		// I will rely on the user to Bind `ToggleInventory` in Blueprint or add a new Input Action later.
+	}
+}
+
+void ACLTCharacter::ToggleInventory()
+{
+	if (InventoryWidget)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			if (PC->bShowMouseCursor)
+			{
+				// Switch to Game Mode (Hide Cursor, but Widget stays visible)
+				PC->SetShowMouseCursor(false);
+				PC->SetInputMode(FInputModeGameOnly());
+			}
+			else
+			{
+				// Switch to UI Mode (Show Cursor to interact with Widget)
+				PC->SetShowMouseCursor(true);
+				PC->SetInputMode(FInputModeGameAndUI());
+			}
+		}
 	}
 }
 

@@ -8,6 +8,8 @@
 #include "Engine/DataTable.h"
 #include "CLTInventoryComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
+
 
 UCLASS(Blueprintable,meta = (BlueprintSpawnableComponent))
 class COLLECTOR_API UCLTInventoryComponent : public UActorComponent
@@ -31,8 +33,14 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Data")
 	UDataTable* ItemDataTable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data", Replicated)
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnInventoryUpdated OnInventoryUpdated;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data", ReplicatedUsing = OnRep_Inventory)
 	TArray<FItemData> Inventory;
+
+	UFUNCTION()
+	void OnRep_Inventory();
 
 	UFUNCTION(BlueprintCallable)
 	bool AddItem(FName RowName);

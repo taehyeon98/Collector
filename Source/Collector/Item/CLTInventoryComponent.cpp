@@ -62,6 +62,7 @@ bool UCLTInventoryComponent::AddItem(FName RowName)
 				if (Inventory[i].Name == TEXT("Empty"))
 				{
 					Inventory[i] = *OutRow;
+					OnInventoryUpdated.Broadcast();
 					return true;
 				}
 			}
@@ -83,6 +84,7 @@ FName UCLTInventoryComponent::RemoveItem(int32 SlotIndex)
 		{
 			FName RemovedItemName = Inventory[SlotIndex].Name;
 			Inventory[SlotIndex].Name = FName(TEXT("Empty"));
+			OnInventoryUpdated.Broadcast();
 			return RemovedItemName;
 		}
 	}
@@ -92,5 +94,10 @@ FName UCLTInventoryComponent::RemoveItem(int32 SlotIndex)
 void UCLTInventoryComponent::C2S_AddItem_Implementation(FName RowName)
 {
 	AddItem(RowName);
+}
+
+void UCLTInventoryComponent::OnRep_Inventory()
+{
+	OnInventoryUpdated.Broadcast();
 }
 
