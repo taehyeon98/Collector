@@ -83,7 +83,7 @@ FName UCLTInventoryComponent::RemoveItem(int32 SlotIndex)
 		if (!Inventory[SlotIndex].Name.IsEqual(TEXT("Empty")))
 		{
 			FName RemovedItemName = Inventory[SlotIndex].Name;
-			Inventory[SlotIndex].Name = FName(TEXT("Empty"));
+			Inventory[SlotIndex] = FItemData();
 			OnInventoryUpdated.Broadcast();
 			return RemovedItemName;
 		}

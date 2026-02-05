@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CLTMonsterController.h"
+#include "Perception/AISense_Hearing.h"
 
 // Sets default values
 ACLTMonsterBase::ACLTMonsterBase()
@@ -53,6 +54,26 @@ void ACLTMonsterBase::SpawnHitEffect(FHitResult Hit)
 			BloodEffect,
 			Hit.ImpactPoint,
 			Hit.ImpactNormal.Rotation()
+		);
+	}
+}
+
+void ACLTMonsterBase::SpawnFootSound()
+{
+	if (FootSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(
+			GetWorld(),
+			FootSound,
+			GetActorLocation()
+		);
+
+		UAISense_Hearing::ReportNoiseEvent(
+			GetWorld(),
+			GetActorLocation(),
+			1.0f,
+			this,
+			-1
 		);
 	}
 }

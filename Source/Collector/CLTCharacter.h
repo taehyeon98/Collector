@@ -149,6 +149,12 @@ public:
 	UPROPERTY()
 	UCLTInventoryWidget* InventoryWidget;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> MainHUDWidgetClass; 
+
+	UPROPERTY()
+	UUserWidget* MainHUDWidget;
+
 	void ToggleInventory();
 
 	UPROPERTY(Category = Character, EditAnywhere, BlueprintReadWrite)

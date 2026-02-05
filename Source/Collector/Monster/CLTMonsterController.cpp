@@ -22,6 +22,7 @@ ACLTMonsterController::ACLTMonsterController()
 	Sight->DetectionByAffiliation.bDetectNeutrals = false;
 	Perception->ConfigureSense(*Sight);
 	Perception->SetDominantSense(*Sight->GetSenseImplementation());
+	SetGenericTeamId(3);
 }
 
 void ACLTMonsterController::OnPossess(APawn* InPawn)
@@ -36,12 +37,22 @@ void ACLTMonsterController::OnPossess(APawn* InPawn)
 
 	Perception->OnTargetPerceptionForgotten.AddDynamic(this, &ACLTMonsterController::ProcessPerceptionForget);
 	Perception->OnTargetPerceptionUpdated.AddDynamic(this, &ACLTMonsterController::ProcessActorPerception);
-	SetGenericTeamId(3);
+	
 }
 
 void ACLTMonsterController::OnUnPossess()
 {
 	Super::OnUnPossess();
+}
+
+void ACLTMonsterController::SetGenericTeamId(const FGenericTeamId& InTeamID)
+{
+	TeamID = InTeamID;
+}
+
+FGenericTeamId ACLTMonsterController::GetGenericTeamId() const
+{
+	return TeamID;
 }
 
 void ACLTMonsterController::SetState(EMonsterState NewState)

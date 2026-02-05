@@ -3,6 +3,7 @@
 
 #include "AnimNotify_FootSound.h"
 #include "../CLTCharacter.h"
+#include "../Monster/CLTMonsterBase.h"
 #include "Kismet/GamePlayStatics.h"
 
 FString UAnimNotify_FootSound::GetNotifyName_Implementation() const
@@ -17,5 +18,12 @@ void UAnimNotify_FootSound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequen
 	if (Char)
 	{
 		Char->SpawnFootSound();
+		return;
+	}
+
+	ACLTMonsterBase* Monster = Cast<ACLTMonsterBase>(MeshComp->GetOwner());
+	if (Monster)
+	{
+		Monster->SpawnFootSound();
 	}
 }

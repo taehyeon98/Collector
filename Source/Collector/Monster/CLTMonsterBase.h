@@ -46,8 +46,14 @@ public:
 	TObjectPtr<UParticleSystem> BloodEffect;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TObjectPtr<class USoundBase> FootSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TObjectPtr<UAnimMontage> DeathMontage;
 public:
+	UFUNCTION(BlueprintCallable)
+	void SpawnFootSound();
+
 	UFUNCTION(BlueprintCallable)
 	void Dead();
 

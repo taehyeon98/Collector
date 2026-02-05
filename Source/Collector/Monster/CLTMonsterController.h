@@ -32,9 +32,18 @@ public:
 	UFUNCTION()
 	virtual void ProcessPerceptionForget(AActor* Actor);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	FGenericTeamId TeamID;
+
 	UFUNCTION()
 	virtual void ProcessActorPerception(AActor* Actor, FAIStimulus Stimulus);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	TObjectPtr<UBehaviorTree> RunBTAsset;
+
+	/** Assigns Team Agent to given TeamID */
+	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;
+
+	/** Retrieve team identifier in form of FGenericTeamId */
+	virtual FGenericTeamId GetGenericTeamId() const override;
 };

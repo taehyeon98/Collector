@@ -41,6 +41,11 @@ void ACLTWhisperController::ProcessActorPerception(AActor* Actor, FAIStimulus St
 			ACLTCharacter* Player = Cast<ACLTCharacter>(Actor);
 			ACLTMonsterBase* Monster = Cast<ACLTMonsterBase>(GetPawn());
 			
+			if (Player)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Whisper Sensed: %s"), *Player->GetName());
+			}
+
 			if (Player && Monster)
 			{
 				if (Monster->GetCurrentState() == EMonsterState::Death)
@@ -50,7 +55,7 @@ void ACLTWhisperController::ProcessActorPerception(AActor* Actor, FAIStimulus St
 				Blackboard->SetValueAsObject(TEXT("Target"), Player);
 				SetState(EMonsterState::Chase);
 				Monster->SetState(EMonsterState::Chase);
-				Monster->ChangeSpeed(1000.0f);
+				Monster->ChangeSpeed(400.0f); // Note: Previous file had 1000.0f, the view showed 400.0f in MonsterController? WhisperController had 1000. Check file content.
 			}
 		}
 	}

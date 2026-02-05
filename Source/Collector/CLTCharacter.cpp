@@ -70,6 +70,15 @@ void ACLTCharacter::BeginPlay()
 			InventoryWidget->SetVisibility(ESlateVisibility::Visible); // Always Visible
 		}
 	}
+
+	if (IsLocallyControlled() && MainHUDWidgetClass)
+	{
+		MainHUDWidget = CreateWidget<UUserWidget>(GetWorld(), MainHUDWidgetClass);
+		if (MainHUDWidget)
+		{
+			MainHUDWidget->AddToViewport();
+		}
+	}
 }
 
 // Called every frame
