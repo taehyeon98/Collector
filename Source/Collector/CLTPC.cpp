@@ -6,3 +6,12 @@
 ACLTPC::ACLTPC()
 {
 }
+
+void ACLTPC::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetShowMouseCursor(false);
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
+}

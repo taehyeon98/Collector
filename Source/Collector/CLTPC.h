@@ -15,4 +15,6 @@ class COLLECTOR_API ACLTPC : public APlayerController
 	GENERATED_BODY()
 public:
 	ACLTPC();
+protected:
+	virtual void BeginPlay() override;
 };

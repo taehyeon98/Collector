@@ -8,7 +8,7 @@ public class Collector : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" ,"EnhancedInput", "AnimGraphRuntime", "NavigationSystem", "UMG", "NetCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" ,"EnhancedInput", "AnimGraphRuntime", "NavigationSystem", "UMG", "NetCore", "Sockets", "Networking" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
